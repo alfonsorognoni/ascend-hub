@@ -1,15 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
-import { getLocation, Location } from "./libs/getLocation";
 import { useDebounce } from "./hooks/useDebounce";
-import { getWeather, Weather } from "./libs/getWeather";
+import useWeatherApi from "./hooks/useWeatherApi";
 
 function App() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState("");
-  const [locationList, setLocationList] = useState<Location[]>([]);
-  const [location, setLocation] = useState<string | null>(null);
-  const [weather, setWeather] = useState<Weather | null>(null);
+
+  const {
+    fetchLocation,
+    locationList: locationListState,
+    fetchWeather,
+    weather: weatherState,
+  } = useWeatherApi();
 
   const debouncedSearch = useDebounce(search, 500);
 
@@ -18,30 +21,16 @@ function App() {
   };
 
   const handleLocation = (location: string) => {
-    setLocation(location);
-    setLocationList([]);
+    fetchWeather({ location });
     if (inputRef.current) {
       inputRef.current.value = "";
+      setSearch("");
     }
   };
 
   useEffect(() => {
-    if (!debouncedSearch || debouncedSearch.length < 3) {
-      setLocationList([]);
-      return;
-    }
-    getLocation({ search: debouncedSearch }).then(({ data }) => {
-      setLocationList(data);
-    });
-  }, [debouncedSearch]);
-
-  useEffect(() => {
-    if (!location) return;
-    getWeather({ location }).then((weather) => {
-      setWeather(weather);
-      console.log(weather);
-    });
-  }, [location]);
+    fetchLocation({ search: debouncedSearch });
+  }, [debouncedSearch, fetchLocation]);
 
   return (
     <>
@@ -68,9 +57,9 @@ function App() {
               ref={inputRef}
             />
 
-            {locationList.length > 0 && (
+            {locationListState.length > 0 && (
               <div className="flex flex-col gap-2">
-                {locationList.map((location) => (
+                {locationListState.map((location) => (
                   <div
                     onClick={() => handleLocation(location.name)}
                     key={location.id}
@@ -84,10 +73,10 @@ function App() {
             )}
           </div>
           <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {location}
+            {weatherState?.location?.name}
           </h5>
           <p className="font-normal text-gray-700 dark:text-gray-400">
-            {weather?.current?.temp_c} °C
+            {weatherState?.current?.temp_c} °C
           </p>
         </div>
       </section>

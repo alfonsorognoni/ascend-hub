@@ -2,6 +2,9 @@ const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
 const apiUrl = import.meta.env.VITE_WEATHER_API_URL;
 
 export interface Weather {
+  location: {
+    name: string;
+  };
   current: {
     temp_c: number;
     temp_f: number;
