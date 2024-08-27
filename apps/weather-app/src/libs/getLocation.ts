@@ -24,6 +24,10 @@ export const getLocation = async ({
   const response = await fetch(
     `${apiUrl}/search.json?key=${apiKey}&q=${search}`
   );
-  const data = await response.json();
-  return { data };
+  try {
+    const data = await response.json();
+    return { data };
+  } catch {
+    throw new Error("Failed to fetch locations");
+  }
 };

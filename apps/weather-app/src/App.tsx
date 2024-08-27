@@ -10,6 +10,8 @@ function App() {
   const {
     fetchLocation,
     locationList: locationListState,
+    isLoadingLocations,
+    isLoadingWeather,
     fetchWeather,
     weather: weatherState,
   } = useWeatherApi();
@@ -38,8 +40,8 @@ function App() {
       <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
         Weather App
       </h2>
-      <section className="card">
-        <div className="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ">
+      <section className="card min-w-80">
+        <div className="flex flex-col max-w-sm gap-6 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ">
           <div className="mb-5">
             <label
               htmlFor="location"
@@ -56,10 +58,10 @@ function App() {
               onChange={handleSearch}
               ref={inputRef}
             />
-
-            {locationListState.length > 0 && (
-              <div className="flex flex-col gap-2">
-                {locationListState.map((location) => (
+            <div className="flex flex-col gap-2">
+              {isLoadingLocations && <p className="font-medium">Loading...</p>}
+              {locationListState.length > 0 &&
+                locationListState.map((location) => (
                   <div
                     onClick={() => handleLocation(location.name)}
                     key={location.id}
@@ -69,15 +71,19 @@ function App() {
                     <p className="text-gray-500 truncate">{location.region}</p>
                   </div>
                 ))}
-              </div>
-            )}
+            </div>
           </div>
-          <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {weatherState?.location?.name}
-          </h5>
-          <p className="font-normal text-gray-700 dark:text-gray-400">
-            {weatherState?.current?.temp_c} °C
-          </p>
+          <div>
+            {isLoadingWeather && <p className="font-medium">Loading...</p>}
+            <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+              {weatherState?.location?.name}
+            </h5>
+            <p className="font-normal text-gray-700 dark:text-gray-400 text-7xl">
+              {weatherState?.current?.temp_c
+                ? `${weatherState?.current?.temp_c} °C`
+                : ""}
+            </p>
+          </div>
         </div>
       </section>
     </>
